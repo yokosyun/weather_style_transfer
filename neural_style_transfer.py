@@ -59,7 +59,6 @@ def make_tuning_step(
     style_feature_maps_indices,
     config,
 ):
-    # Builds function that performs a step in the tuning loop
     def tuning_step(optimizing_img):
         total_loss, content_loss, style_loss, tv_loss = build_loss(
             neural_net,
@@ -69,14 +68,11 @@ def make_tuning_step(
             style_feature_maps_indices,
             config,
         )
-        # Computes gradients
         total_loss.backward()
-        # Updates parameters and zeroes gradients
         optimizer.step()
         optimizer.zero_grad()
         return total_loss, content_loss, style_loss, tv_loss
 
-    # Returns the function that will be called inside the tuning loop
     return tuning_step
 
 
@@ -96,8 +92,8 @@ def neural_style_transfer(config):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    content_img = utils.prepare_img(content_img_path, config["height"], device)
-    style_img = utils.prepare_img(style_img_path, config["height"], device)
+    content_img = utils.prepare_img(content_img_path, config["img_hw"], device)
+    style_img = utils.prepare_img(style_img_path, config["img_hw"], device)
 
     if config["init_method"] == "random":
         # white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
@@ -108,10 +104,9 @@ def neural_style_transfer(config):
     elif config["init_method"] == "content":
         init_img = content_img
     else:
-        style_img_resized = utils.prepare_img(
+        init_img = utils.prepare_img(
             style_img_path, np.asarray(content_img.shape[2:]), device
         )
-        init_img = style_img_resized
 
     optimizing_img = Variable(init_img, requires_grad=True)
     (
@@ -158,16 +153,8 @@ def neural_style_transfer(config):
                 print(
                     f'Adam | iteration: {cnt:03}, total loss={total_loss.item():12.4f}, content_loss={config["content_weight"] * content_loss.item():12.4f}, style loss={config["style_weight"] * style_loss.item():12.4f}, tv loss={config["tv_weight"] * tv_loss.item():12.4f}'
                 )
-                utils.save_and_maybe_display(
-                    optimizing_img,
-                    save_dir,
-                    config,
-                    cnt,
-                    num_of_iterations[config["optimizer"]],
-                    should_display=False,
-                )
+                utils.save_result(optimizing_img, save_dir, config["saving_freq"], cnt)
     elif config["optimizer"] == "lbfgs":
-        # line_search_fn does not seem to have significant impact on result
         optimizer = LBFGS(
             (optimizing_img,),
             max_iter=num_of_iterations["lbfgs"],
@@ -193,14 +180,7 @@ def neural_style_transfer(config):
                 print(
                     f'L-BFGS | iteration: {cnt:03}, total loss={total_loss.item():12.4f}, content_loss={config["content_weight"] * content_loss.item():12.4f}, style loss={config["style_weight"] * style_loss.item():12.4f}, tv loss={config["tv_weight"] * tv_loss.item():12.4f}'
                 )
-                utils.save_and_maybe_display(
-                    optimizing_img,
-                    save_dir,
-                    config,
-                    cnt,
-                    num_of_iterations[config["optimizer"]],
-                    should_display=False,
-                )
+                utils.save_result(optimizing_img, save_dir, config["saving_freq"], cnt)
 
             cnt += 1
             return total_loss
@@ -211,11 +191,7 @@ def neural_style_transfer(config):
 
 
 if __name__ == "__main__":
-    img_format = (4, ".jpg")  # saves images in the format: %04d.jpg
-
     with open("configs/neural_style_transfer.yaml", "r") as yml:
         cfg = yaml.safe_load(yml)
-
-    cfg["img_format"] = img_format
 
     neural_style_transfer(cfg)

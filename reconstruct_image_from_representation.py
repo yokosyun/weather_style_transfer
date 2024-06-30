@@ -1,11 +1,9 @@
 import utils.utils as utils
-from utils.video_utils import create_video_from_intermediate_results
-
 import os
 import argparse
 import torch
 from torch.autograd import Variable
-from torch.optim import Adam, LBFGS
+from torch.optim import Adam
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -68,9 +66,11 @@ def reconstruct_image_from_representation(config):
     )
     dump_path = os.path.join(
         dump_path,
-        os.path.basename(config["content_img_name"]).split(".")[0]
-        if should_reconstruct_content
-        else os.path.basename(config["style_img_name"]).split(".")[0],
+        (
+            os.path.basename(config["content_img_name"]).split(".")[0]
+            if should_reconstruct_content
+            else os.path.basename(config["style_img_name"]).split(".")[0]
+        ),
     )
     os.makedirs(dump_path, exist_ok=True)
 
@@ -82,7 +82,7 @@ def reconstruct_image_from_representation(config):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    img = utils.prepare_img(img_path, config["height"], device)
+    img = utils.prepare_img(img_path, config["img_hw"], device)
 
     gaussian_noise_img = np.random.normal(loc=0, scale=90.0, size=img.shape).astype(
         np.float32
@@ -169,7 +169,7 @@ def reconstruct_image_from_representation(config):
                 print(
                     f'Iteration: {it}, current {"content" if should_reconstruct_content else "style"} loss={loss:10.8f}'
                 )
-                utils.save_and_maybe_display(
+                utils.save_result(
                     optimizing_img,
                     dump_path,
                     config,
@@ -210,7 +210,7 @@ def reconstruct_image_from_representation(config):
                 print(
                     f'Iteration: {cnt}, current {"content" if should_reconstruct_content else "style"} loss={loss.item()}'
                 )
-                utils.save_and_maybe_display(
+                utils.save_result(
                     optimizing_img,
                     dump_path,
                     config,
@@ -265,7 +265,7 @@ if __name__ == "__main__":
         "--style_img_name", type=str, help="style image name", default="ben_giles.jpg"
     )
     parser.add_argument(
-        "--height",
+        "--img_hw",
         type=int,
         help="width of content and style images (-1 keep original)",
         default=500,
@@ -302,5 +302,3 @@ if __name__ == "__main__":
 
     # reconstruct style or content image purely from their representation
     results_path = reconstruct_image_from_representation(optimization_config)
-
-    # create_video_from_intermediate_results(results_path, img_format)
