@@ -1,0 +1,13 @@
+content_images_dir: "data/augmented_content-images"
+content_img_name: "berlin_000000_000019_leftImg8bit.jpg"
+style_images_dir: "data/style-images"
+output_img_dir: "data/output-images"
+style_img_name: "rain_storm-002.jpg"
+height: 400
+content_weight: 1.0e+5
+style_weight: 3.0e+4
+tv_weight: 1.0e+0
+optimizer: "lbfgs" # ["lbfgs", "adam"]
+model: "vgg19" # ["vgg16", "vgg19"]
+init_method: "content" # ["random", "content", "style"]
+saving_freq: -1

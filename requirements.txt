@@ -3,3 +3,5 @@ torchvision
 opencv-python
 matplotlib
 pre-commit
+albumentations
+pyyaml
