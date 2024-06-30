@@ -134,7 +134,7 @@ def neural_style_transfer(config):
 
     num_of_iterations = {
         "lbfgs": 1000,
-        "adam": 300,
+        "adam": 3000,
     }
 
     if config["optimizer"] == "adam":
