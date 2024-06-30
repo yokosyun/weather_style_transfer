@@ -13,11 +13,6 @@ IMAGENET_MEAN_255 = [123.675, 116.28, 103.53]
 IMAGENET_STD_NEUTRAL = [1, 1, 1]
 
 
-#
-# Image manipulation util functions
-#
-
-
 def load_image(img_path, target_shape=None):
     if not os.path.exists(img_path):
         raise Exception(f"Path does not exist: {img_path}")
@@ -121,11 +116,6 @@ def get_uint8_range(x):
         return x
     else:
         raise ValueError(f"Expected numpy array got {type(x)}")
-
-
-#
-# End of image manipulation util functions
-#
 
 
 # initially it takes some time for PyTorch to download the models into local cache
