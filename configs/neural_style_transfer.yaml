@@ -1,12 +1,27 @@
 # Input
 content_images_dir: "data/content-images"
-# content_img_name: "berlin_000000_000019_leftImg8bit.jpg"
-content_img_name: "berlin_000000_000019_leftImg8bit_rain.jpg"
+content_img_name: "berlin_000000_000019_leftImg8bit.jpg"
+# content_img_name: "berlin_000000_000019_leftImg8bit_rain.jpg"
 # content_img_name: "lion.jpg"
 
 style_images_dir: "data/style-images"
-# style_img_name: "rain_storm-001.jpg"
-style_img_name: "vg_starry_night.jpg"
+style_img_names:
+  # - "rain_storm-001.jpg"
+  # - "rain_storm-002.jpg"
+  # - "rain_storm-005.jpg"
+  # - "vg_starry_night.jpg"
+  # - "rain_storm-019.jpg"
+  # - "rain_storm-207.jpg"
+  # - "rain_storm-213.jpg"
+  # - "rain_storm-283.jpg"
+  # - "rain_storm-427.jpg"
+  # - "rain_storm-431.jpg"
+  # - "rain_storm-443.jpg"
+  # - "rain_storm-740.jpg"
+  # - "rain_storm-748.jpg"
+  - "rain_storm-779.jpg"
+
+
 
 # Output
 save_dir: "data/output-images"
@@ -17,10 +32,10 @@ img_hw: [400, 400]
 model: "vgg19" # ["vgg16", "vgg19"]
 optimizer: "adam" # ["lbfgs", "adam"]
 Adam:
-  lr: 0.1
+  lr: 1
 init_method: "content" # ["random", "content", "style"]
 loss_weights:
   content_weight: 1.0
-  style_weight: 0.00001
+  style_weight: 1.0
   tv_weight: 0.0
-num_of_iterations: 500
+num_of_iterations: 3000
