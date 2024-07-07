@@ -59,7 +59,7 @@ def reconstruct_image_from_representation(config):
     should_reconstruct_content = config["should_reconstruct_content"]
     should_visualize_representation = config["should_visualize_representation"]
     dump_path = os.path.join(
-        config["output_img_dir"],
+        config["save_dir"],
         ("c" if should_reconstruct_content else "s")
         + "_reconstruction_"
         + config["optimizer"],
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     default_resource_dir = os.path.join(os.path.dirname(__file__), "data")
     content_images_dir = os.path.join(default_resource_dir, "content-images")
     style_images_dir = os.path.join(default_resource_dir, "style-images")
-    output_img_dir = os.path.join(default_resource_dir, "output-images")
+    save_dir = os.path.join(default_resource_dir, "output-images")
     img_format = (4, ".jpg")  # saves images in the format: %04d.jpg
 
     #
@@ -297,7 +297,7 @@ if __name__ == "__main__":
         optimization_config[arg] = getattr(args, arg)
     optimization_config["content_images_dir"] = content_images_dir
     optimization_config["style_images_dir"] = style_images_dir
-    optimization_config["output_img_dir"] = output_img_dir
+    optimization_config["save_dir"] = save_dir
     optimization_config["img_format"] = img_format
 
     # reconstruct style or content image purely from their representation

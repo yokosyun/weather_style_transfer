@@ -76,10 +76,10 @@ def get_uint8_range(x):
         raise ValueError(f"Expected numpy array got {type(x)}")
 
 
-def prepare_model(model, device):
-    if model == "vgg16":
+def prepare_model(model_name):
+    if model_name == "vgg16":
         model = Vgg16(requires_grad=False, show_progress=True)
-    elif model == "vgg19":
+    elif model_name == "vgg19":
         model = Vgg19(requires_grad=False, show_progress=True)
     else:
         raise ValueError(f"{model} not supported.")
@@ -94,7 +94,7 @@ def prepare_model(model, device):
     )
 
     style_fms_indices_names = (style_feature_maps_indices, layer_names)
-    return model.to(device).eval(), content_fms_index_name, style_fms_indices_names
+    return model.eval(), content_fms_index_name, style_fms_indices_names
 
 
 def gram_matrix(x, should_normalize=True):
