@@ -11,19 +11,15 @@ import yaml
 def build_loss(
     model,
     optimizing_img,
-    target_representations,
-    content_feature_maps_index,
-    style_feature_maps_indices,
+    target_content_feats,
+    target_style_feats,
+    content_feat_idx,
+    style_feat_idxs,
     loss_weights,
 ):
-    target_content_feats = target_representations[0]
-    target_style_feats = target_representations[1]
-
     current_feat_maps = model(optimizing_img)
 
-    current_content_feats = current_feat_maps[content_feature_maps_index].squeeze(
-        axis=0
-    )
+    current_content_feats = current_feat_maps[content_feat_idx].squeeze(axis=0)
 
     content_loss = torch.nn.MSELoss(reduction="mean")(
         target_content_feats, current_content_feats
@@ -33,7 +29,7 @@ def build_loss(
     current_style_feats = [
         utils.gram_matrix(x)
         for idx, x in enumerate(current_feat_maps)
-        if idx in style_feature_maps_indices
+        if idx in style_feat_idxs
     ]
     for gram_gt, gram_hat in zip(target_style_feats, current_style_feats):
         style_loss += torch.nn.MSELoss(reduction="sum")(gram_gt[0], gram_hat[0])
@@ -53,18 +49,20 @@ def build_loss(
 def make_tuning_step(
     model,
     optimizer,
-    target_representations,
-    content_feature_maps_index,
-    style_feature_maps_indices,
+    target_content_feats,
+    target_style_feats,
+    content_feat_idx,
+    style_feat_idxs,
     loss_weights,
 ):
     def tuning_step(optimizing_img):
         total_loss, content_loss, style_loss, tv_loss = build_loss(
             model,
             optimizing_img,
-            target_representations,
-            content_feature_maps_index,
-            style_feature_maps_indices,
+            target_content_feats,
+            target_style_feats,
+            content_feat_idx,
+            style_feat_idxs,
             loss_weights,
         )
         total_loss.backward()
@@ -95,7 +93,6 @@ def neural_style_transfer(config):
     style_img = utils.prepare_img(style_img_path, config["img_hw"], device)
 
     if config["init_method"] == "random":
-        # white_noise_img = np.random.uniform(-90., 90., content_img.shape).astype(np.float32)
         gaussian_noise_img = np.random.normal(
             loc=0, scale=90.0, size=content_img.shape
         ).astype(np.float32)
@@ -109,39 +106,29 @@ def neural_style_transfer(config):
 
     optimizing_img = Variable(init_img, requires_grad=True)
 
-    (
-        model,
-        content_feature_maps_index_name,
-        style_feature_maps_indices_names,
-    ) = utils.prepare_model(config["model"])
+    model = utils.prepare_model(config["model"])
     model = model.to(device)
 
     content_feat_maps = model(content_img)
     style_feat_maps = model(style_img)
 
-    target_content_feats = content_feat_maps[
-        content_feature_maps_index_name[0]
-    ].squeeze(axis=0)
+    target_content_feats = content_feat_maps[model.content_feat_idx].squeeze(axis=0)
 
     target_style_feats = [
         utils.gram_matrix(x)
         for idx, x in enumerate(style_feat_maps)
-        if idx in style_feature_maps_indices_names[0]
-    ]
-
-    target_representations = [
-        target_content_feats,
-        target_style_feats,
+        if idx in model.style_feat_idxs
     ]
 
     if config["optimizer"] == "adam":
-        optimizer = Adam((optimizing_img,), lr=1e1)
+        optimizer = Adam((optimizing_img,), **config["Adam"])
         tuning_step = make_tuning_step(
             model,
             optimizer,
-            target_representations,
-            content_feature_maps_index_name[0],
-            style_feature_maps_indices_names[0],
+            target_content_feats,
+            target_style_feats,
+            model.content_feat_idx,
+            model.style_feat_idxs,
             config["loss_weights"],
         )
         for iter in range(config["num_of_iterations"]):
@@ -166,10 +153,11 @@ def neural_style_transfer(config):
             total_loss, content_loss, style_loss, tv_loss = build_loss(
                 model,
                 optimizing_img,
-                target_representations,
-                content_feature_maps_index_name[0],
-                style_feature_maps_indices_names[0],
-                config,
+                target_content_feats,
+                target_style_feats,
+                model.content_feat_idx,
+                model.style_feat_idxs,
+                config["loss_weights"],
             )
             if total_loss.requires_grad:
                 total_loss.backward()

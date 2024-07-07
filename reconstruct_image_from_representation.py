@@ -13,22 +13,22 @@ def make_tuning_step(
     optimizer,
     target_representation,
     should_reconstruct_content,
-    content_feature_maps_index,
-    style_feature_maps_indices,
+    content_feat_idx,
+    style_feat_idxs,
 ):
     # Builds function that performs a step in the tuning loop
     def tuning_step(optimizing_img):
         # Finds the current representation
         set_of_feature_maps = model(optimizing_img)
         if should_reconstruct_content:
-            current_representation = set_of_feature_maps[
-                content_feature_maps_index
-            ].squeeze(axis=0)
+            current_representation = set_of_feature_maps[content_feat_idx].squeeze(
+                axis=0
+            )
         else:
             current_representation = [
                 utils.gram_matrix(fmaps)
                 for i, fmaps in enumerate(set_of_feature_maps)
-                if i in style_feature_maps_indices
+                if i in style_feat_idxs
             ]
 
         # Computes the loss between current and target representations
@@ -94,8 +94,8 @@ def reconstruct_image_from_representation(config):
     # indices pick relevant feature maps (say conv4_1, relu1_1, etc.)
     (
         neural_net,
-        content_feature_maps_index_name,
-        style_feature_maps_indices_names,
+        content_feat_idx,
+        style_feat_idxs,
     ) = utils.prepare_model(config["model"], device)
 
     # don't want to expose everything that's not crucial so some things are hardcoded
@@ -108,7 +108,7 @@ def reconstruct_image_from_representation(config):
     #
     if should_reconstruct_content:
         target_content_representation = set_of_feature_maps[
-            content_feature_maps_index_name[0]
+            content_feat_idx[0]
         ].squeeze(axis=0)
         if should_visualize_representation:
             num_of_feature_maps = target_content_representation.size()[0]
@@ -118,16 +118,16 @@ def reconstruct_image_from_representation(config):
                 feature_map = np.uint8(utils.get_uint8_range(feature_map))
                 plt.imshow(feature_map)
                 plt.title(
-                    f'Feature map {i+1}/{num_of_feature_maps} from layer {content_feature_maps_index_name[1]} (model={config["model"]}) for {config["content_img_name"]} image.'
+                    f'Feature map {i+1}/{num_of_feature_maps} from layer {content_feat_idx[1]} (model={config["model"]}) for {config["content_img_name"]} image.'
                 )
                 plt.show()
-                filename = f'fm_{config["model"]}_{content_feature_maps_index_name[1]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
+                filename = f'fm_{config["model"]}_{content_feat_idx[1]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
                 utils.save_image(feature_map, os.path.join(dump_path, filename))
     else:
         target_style_representation = [
             utils.gram_matrix(fmaps)
             for i, fmaps in enumerate(set_of_feature_maps)
-            if i in style_feature_maps_indices_names[0]
+            if i in style_feat_idxs[0]
         ]
         if should_visualize_representation:
             num_of_gram_matrices = len(target_style_representation)
@@ -139,10 +139,10 @@ def reconstruct_image_from_representation(config):
                 Gram_matrix = np.uint8(utils.get_uint8_range(Gram_matrix))
                 plt.imshow(Gram_matrix)
                 plt.title(
-                    f'Gram matrix from layer {style_feature_maps_indices_names[1][i]} (model={config["model"]}) for {config["style_img_name"]} image.'
+                    f'Gram matrix from layer {style_feat_idxs[1][i]} (model={config["model"]}) for {config["style_img_name"]} image.'
                 )
                 plt.show()
-                filename = f'gram_{config["model"]}_{style_feature_maps_indices_names[1][i]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
+                filename = f'gram_{config["model"]}_{style_feat_idxs[1][i]}_{str(i).zfill(config["img_format"][0])}{config["img_format"][1]}'
                 utils.save_image(Gram_matrix, os.path.join(dump_path, filename))
 
     #
@@ -160,8 +160,8 @@ def reconstruct_image_from_representation(config):
             optimizer,
             target_representation,
             should_reconstruct_content,
-            content_feature_maps_index_name[0],
-            style_feature_maps_indices_names[0],
+            content_feat_idx[0],
+            style_feat_idxs[0],
         )
         for it in range(num_of_iterations[config["optimizer"]]):
             loss, _ = tuning_step(optimizing_img)
@@ -188,16 +188,14 @@ def reconstruct_image_from_representation(config):
             if should_reconstruct_content:
                 loss = torch.nn.MSELoss(reduction="mean")(
                     target_content_representation,
-                    neural_net(optimizing_img)[
-                        content_feature_maps_index_name[0]
-                    ].squeeze(axis=0),
+                    neural_net(optimizing_img)[content_feat_idx[0]].squeeze(axis=0),
                 )
             else:
                 current_set_of_feature_maps = neural_net(optimizing_img)
                 current_style_representation = [
                     utils.gram_matrix(fmaps)
                     for i, fmaps in enumerate(current_set_of_feature_maps)
-                    if i in style_feature_maps_indices_names[0]
+                    if i in style_feat_idxs[0]
                 ]
                 for gram_gt, gram_hat in zip(
                     target_style_representation, current_style_representation

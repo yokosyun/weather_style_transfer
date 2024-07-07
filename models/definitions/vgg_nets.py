@@ -1,4 +1,3 @@
-from collections import namedtuple
 import torch
 from torchvision import models
 
@@ -18,8 +17,8 @@ class Vgg16(torch.nn.Module):
             pretrained=True, progress=show_progress
         ).features
         self.layer_names = ["relu1_2", "relu2_2", "relu3_3", "relu4_3"]
-        self.content_feature_maps_index = 1  # relu2_2
-        self.style_feature_maps_indices = list(
+        self.content_feat_idx = 1  # relu2_2
+        self.style_feat_idxs = list(
             range(len(self.layer_names))
         )  # all layers used for style representation
 
@@ -48,9 +47,8 @@ class Vgg16(torch.nn.Module):
         relu3_3 = x
         x = self.slice4(x)
         relu4_3 = x
-        vgg_outputs = namedtuple("VggOutputs", self.layer_names)
-        out = vgg_outputs(relu1_2, relu2_2, relu3_3, relu4_3)
-        return out
+
+        return (relu1_2, relu2_2, relu3_3, relu4_3)
 
 
 class Vgg19(torch.nn.Module):
@@ -86,10 +84,10 @@ class Vgg19(torch.nn.Module):
                 "conv5_1",
             ]
             self.offset = 0
-        self.content_feature_maps_index = 4  # conv4_2
+        self.content_feat_idx = 4  # conv4_2
         # all layers used for style representation except conv4_2
-        self.style_feature_maps_indices = list(range(len(self.layer_names)))
-        self.style_feature_maps_indices.remove(4)  # conv4_2
+        self.style_feat_idxs = list(range(len(self.layer_names)))
+        self.style_feat_idxs.remove(4)  # conv4_2
 
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
@@ -126,6 +124,5 @@ class Vgg19(torch.nn.Module):
         conv4_2 = x
         x = self.slice6(x)
         layer5_1 = x
-        vgg_outputs = namedtuple("VggOutputs", self.layer_names)
-        out = vgg_outputs(layer1_1, layer2_1, layer3_1, layer4_1, conv4_2, layer5_1)
-        return out
+
+        return (layer1_1, layer2_1, layer3_1, layer4_1, conv4_2, layer5_1)
