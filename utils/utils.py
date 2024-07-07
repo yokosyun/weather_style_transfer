@@ -84,7 +84,7 @@ def prepare_model(model_name):
     else:
         raise ValueError(f"{model} not supported.")
 
-    return model.eval()
+    return model
 
 
 def gram_matrix(x, should_normalize=True):
