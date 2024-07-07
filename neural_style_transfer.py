@@ -107,6 +107,7 @@ def neural_style_transfer(config):
     optimizing_img = Variable(init_img, requires_grad=True)
 
     model = utils.prepare_model(config["model"])
+    model.eval()
     model = model.to(device)
 
     content_feat_maps = model(content_img)
