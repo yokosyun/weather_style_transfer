@@ -84,17 +84,7 @@ def prepare_model(model_name):
     else:
         raise ValueError(f"{model} not supported.")
 
-    content_feature_maps_index = model.content_feature_maps_index
-    style_feature_maps_indices = model.style_feature_maps_indices
-    layer_names = model.layer_names
-
-    content_fms_index_name = (
-        content_feature_maps_index,
-        layer_names[content_feature_maps_index],
-    )
-
-    style_fms_indices_names = (style_feature_maps_indices, layer_names)
-    return model.eval(), content_fms_index_name, style_fms_indices_names
+    return model.eval()
 
 
 def gram_matrix(x, should_normalize=True):
