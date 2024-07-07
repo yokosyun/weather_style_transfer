@@ -5,7 +5,7 @@ content_img_name: "berlin_000000_000019_leftImg8bit_rain.jpg"
 # content_img_name: "lion.jpg"
 
 style_images_dir: "data/style-images"
-# style_img_name: "rain_storm-002.jpg"
+# style_img_name: "rain_storm-001.jpg"
 style_img_name: "vg_starry_night.jpg"
 
 # Output
@@ -16,9 +16,11 @@ saving_freq: 10
 img_hw: [400, 400]
 model: "vgg19" # ["vgg16", "vgg19"]
 optimizer: "adam" # ["lbfgs", "adam"]
+Adam:
+  lr: 0.1
 init_method: "content" # ["random", "content", "style"]
 loss_weights:
-  content_weight: 1.0e+5
-  style_weight: 3.0e+4
-  tv_weight: 1.0e+0
-num_of_iterations: 500 # lbfgs: 1000, adam: 3000
+  content_weight: 1.0
+  style_weight: 0.00001
+  tv_weight: 0.0
+num_of_iterations: 500
