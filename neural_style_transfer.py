@@ -100,19 +100,7 @@ def neural_style_transfer(config):
         style_imgs.append(style_img)
     style_img = torch.cat(style_imgs, dim=0)
 
-    if config["init_method"] == "random":
-        gaussian_noise_img = np.random.normal(
-            loc=0, scale=90.0, size=content_img.shape
-        ).astype(np.float32)
-        init_img = torch.from_numpy(gaussian_noise_img).float().to(device)
-    elif config["init_method"] == "content":
-        init_img = content_img
-    else:
-        init_img = utils.prepare_img(
-            style_img_path, np.asarray(content_img.shape[2:]), device
-        )
-
-    optimizing_img = Variable(init_img, requires_grad=True)
+    optimizing_img = Variable(content_img.clone(), requires_grad=True)
 
     model = utils.prepare_model(config["model"])
     model.eval()

@@ -16,16 +16,16 @@ style_img_names:
   # - "rain_storm-283.jpg"
   # - "rain_storm-427.jpg"
   # - "rain_storm-431.jpg"
-  # - "rain_storm-443.jpg"
+  - "rain_storm-443.jpg"
   # - "rain_storm-740.jpg"
   # - "rain_storm-748.jpg"
-  - "rain_storm-779.jpg"
+  # - "rain_storm-779.jpg"
 
 
 
 # Output
 save_dir: "data/output-images"
-saving_freq: 10
+saving_freq: 100
 
 # Optimization
 img_hw: [400, 400]
@@ -33,7 +33,6 @@ model: "vgg19" # ["vgg16", "vgg19"]
 optimizer: "adam" # ["lbfgs", "adam"]
 Adam:
   lr: 1
-init_method: "content" # ["random", "content", "style"]
 loss_weights:
   content_weight: 1.0
   style_weight: 1.0
