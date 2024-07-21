@@ -81,11 +81,10 @@ def neural_style_transfer(config):
         config["content_images_dir"], config["content_img_name"]
     )
 
-    out_folder = (
-        config["content_img_name"].split(".")[0]
-        + "_"
-        + config["style_img_names"][0].split(".")[0]
-    )
+    style_img_names = os.path.join(*config["style_img_names"])
+    style_img_names = style_img_names.replace(".jpg", "").replace("/", "-")
+
+    out_folder = config["content_img_name"].split(".")[0] + "-" + style_img_names
     save_dir = os.path.join(config["save_dir"], out_folder)
     os.makedirs(save_dir, exist_ok=True)
 
