@@ -3,15 +3,15 @@ content_images_dir: "data/content-images"
 content_img_name: "berlin_000000_000019_leftImg8bit.jpg"
 # content_img_name: "lion.jpg"
 
-style_images_dir: "data/style-images"
+style_images_dir: "data/style-images/windshield_droplets"
 style_img_names:
-  # Art
+  # art
   # - "vg_starry_night.jpg"
-  # Rain Storm
+  # rain_storm
   # - "rain_storm-001.jpg"
   # - "rain_storm-002.jpg"
   # - "rain_storm-005.jpg"
-  # Windshield Droplets
+  # windshield_droplets
   # - "rain_storm-019.jpg"
   # - "rain_storm-207.jpg"
   # - "rain_storm-213.jpg"
@@ -20,7 +20,7 @@ style_img_names:
   # - "rain_storm-740.jpg"
   # - "rain_storm-748.jpg"
   # - "rain_storm-779.jpg"
-  # Snow
+  # snowing
   # - snow_storm-079.jpg
   # - snow_storm-285.jpg
   # - snow_storm-251.jpg
@@ -28,7 +28,7 @@ style_img_names:
   # - snow_storm-111.jpg
   # - snow_storm-301.jpg
   # - snow_storm-360.jpg
-  # Splash
+  # splash
   # - rain_storm-004.jpg
   # - rain_storm-009.jpg
   # - rain_storm-034.jpg
