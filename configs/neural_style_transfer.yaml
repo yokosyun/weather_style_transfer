@@ -60,7 +60,7 @@ optimizer: "adam" # ["lbfgs", "adam"]
 Adam:
   lr: 1
 loss_weights:
-  content_weight: 1.0
-  style_weight: 1.0
+  content_weight: 0.5
+  style_weight: 0.5
   tv_weight: 0.0
 num_of_iterations: 3000
